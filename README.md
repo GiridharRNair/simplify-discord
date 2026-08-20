@@ -2,7 +2,7 @@
 
 [![Join us on Discord](https://img.shields.io/badge/Discord-Join%20the%20server-5865F2?logo=discord&logoColor=white)](https://discord.gg/RRpXJZjxhM)
 
-A cron job that watches the [Simplify Jobs](https://github.com/SimplifyJobs) internship and new-grad listings, and posts new ones to Discord — sorted into channels by category (Software, Product, Data Science/AI/ML, Quant, Hardware).
+A cron job that watches the Simplify Jobs [internship](https://github.com/SimplifyJobs/Summer2027-Internships) and [new-grad](https://github.com/SimplifyJobs/New-Grad-Positions) listings, and posts new ones to Discord — sorted into channels by category (Software, Product, Data Science/AI/ML, Quant, Hardware).
 
 ## How it works
 
@@ -14,6 +14,5 @@ Every hour, a GitHub Actions workflow runs the script. It:
 4. Posts each new listing as a Discord embed to the webhook for its category.
 5. Saves the updated list of seen IDs and commits it back to the repo, so nothing gets posted twice.
 
-On the very first run for a given feed, nothing is posted — it just records what's currently live so future runs only announce what's actually new.
 
 

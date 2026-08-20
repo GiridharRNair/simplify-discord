@@ -1,4 +1,5 @@
 # Script to bulk add GitHub secrets from a .env file. 
+# Need to be authenticated with GitHub CLI (gh) and have access to the repo.
 
 while IFS='=' read -r key value || [ -n "$key" ]; do
   # Skip comments and empty lines

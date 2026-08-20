@@ -6,7 +6,7 @@ A cron job that watches the Simplify Jobs [internship](https://github.com/Simpli
 
 ## How it works
 
-Every hour, a GitHub Actions workflow runs the script. It:
+Every 30 minutes, a GitHub Actions workflow runs the script. It:
 
 1. Fetches the latest listings from Simplify's public repos ([Summer Internships](https://github.com/SimplifyJobs/Summer2027-Internships) and [New Grad Positions](https://github.com/SimplifyJobs/New-Grad-Positions)).
 2. Compares them against `data/seen_ids/` — a record of listings already posted.

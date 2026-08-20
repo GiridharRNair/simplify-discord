@@ -1,0 +1,5 @@
+-r requirements.txt
+
+python-dotenv>=1.0   # loads .env for local runs; CI injects secrets directly
+ruff>=0.6            # linting + formatting
+mypy>=1.11           # static type checking

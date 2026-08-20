@@ -1,0 +1,47 @@
+name: Check Simplify Internships
+
+on:
+  schedule:
+    # Every hour, on the hour (UTC). Adjust the interval here if desired.
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: check-internships
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run internship checker
+        env:
+          SOFTWARE_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.SOFTWARE_INTERNSHIPS_WEBHOOK_URL }}
+          PRODUCT_MANAGEMENT_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.PRODUCT_MANAGEMENT_INTERNSHIPS_WEBHOOK_URL }}
+          DATA_SCIENCE_ML_AI_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.DATA_SCIENCE_ML_AI_INTERNSHIPS_WEBHOOK_URL }}
+          QUANTITATIVE_FINANCE_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.QUANTITATIVE_FINANCE_INTERNSHIPS_WEBHOOK_URL }}
+          HARDWARE_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.HARDWARE_INTERNSHIPS_WEBHOOK_URL }}
+          UNCATEGORIZED_INTERNSHIPS_WEBHOOK_URL: ${{ secrets.UNCATEGORIZED_INTERNSHIPS_WEBHOOK_URL }}
+        run: python main.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/seen_ids.json
+          git diff --staged --quiet || git commit -m "chore: update seen internship ids [skip ci]"
+          git push

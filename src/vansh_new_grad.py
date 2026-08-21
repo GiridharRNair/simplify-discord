@@ -34,6 +34,6 @@ def run() -> bool:
         category_map=new_grad.CATEGORY_MAP,
         uncategorized_env_var=new_grad.UNCATEGORIZED_ENV_VAR,
         show_terms=False,
-        footer="vanshb03 · New-Grad-2027",
+        footer="vanshb03 · New Grad",
     )
     return True

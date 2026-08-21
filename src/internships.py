@@ -41,7 +41,7 @@ def run() -> bool:
         uncategorized_env_var=SUMMER_UNCATEGORIZED_ENV_VAR,
         term_filter=is_summer,
         show_terms=True,
-        footer="Simplify · Summer2027-Internships",
+        footer="Simplify · Internships",
     )
     common.notify_new_listings(
         name="offseason",
@@ -50,6 +50,6 @@ def run() -> bool:
         uncategorized_env_var=OFFSEASON_UNCATEGORIZED_ENV_VAR,
         term_filter=lambda listing: not is_summer(listing),
         show_terms=True,
-        footer="Simplify · Summer2027-Internships (Off-Season)",
+        footer="Simplify · Off-Season Internships",
     )
     return True

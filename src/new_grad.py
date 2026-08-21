@@ -29,6 +29,6 @@ def run() -> bool:
         category_map=CATEGORY_MAP,
         uncategorized_env_var=UNCATEGORIZED_ENV_VAR,
         show_terms=False,
-        footer="Simplify · New-Grad-Positions",
+        footer="Simplify · New Grad",
     )
     return True

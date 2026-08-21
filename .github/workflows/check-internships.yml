@@ -2,8 +2,8 @@ name: Check Simplify Internships
 
 on:
   schedule:
-    # Every 30 minutes (UTC). Adjust the interval here if desired.
-    - cron: "*/30 * * * *"
+    # Every hour, on the hour (UTC). Adjust the interval here if desired.
+    - cron: "0 * * * *"
   workflow_dispatch: {}
 
 permissions:

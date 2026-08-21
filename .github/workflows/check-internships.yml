@@ -1,5 +1,8 @@
 name: Check Simplify Internships
 
+on:
+  workflow_dispatch: {}
+
 permissions:
   contents: write
 

@@ -9,7 +9,7 @@ A cron job that watches the Simplify Jobs [internship](https://github.com/Simpli
 Every 15 minutes, 8am–6pm on weekdays, [cron-job.org](https://cron-job.org) hits a small API endpoint hosted on Vercel. That endpoint triggers this repo's GitHub Actions workflow, which runs the script. 
 
 
-This project does not use GitHub Actions because the scheduled jobs dosen't run consistently.
+This project dosen't use GitHub Actions because the scheduled jobs aren't consistent.
 
 
 The script does the following:

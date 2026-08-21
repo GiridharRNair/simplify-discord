@@ -9,6 +9,7 @@ from pathlib import Path
 import requests
 
 STATE_DIR = Path(__file__).resolve().parent.parent / "data" / "seen_ids"
+URL_STATE_DIR = Path(__file__).resolve().parent.parent / "data" / "seen_urls"
 
 DISCORD_EMBEDS_PER_MESSAGE = 10  # Discord's hard cap per webhook execute call
 
@@ -59,7 +60,8 @@ def fetch_json(url: str) -> list[dict]:
     return resp.json()
 
 
-def load_seen_ids(path: Path) -> tuple[set[str], bool]:
+def load_seen_ids(name: str) -> tuple[set[str], bool]:
+    path = STATE_DIR / f"{name}.json"
     if not path.exists():
         return set(), True
     with path.open() as f:
@@ -67,12 +69,36 @@ def load_seen_ids(path: Path) -> tuple[set[str], bool]:
     return set(data.get("seen_ids", [])), False
 
 
-def save_seen_ids(path: Path, seen_ids: set[str]) -> None:
+def save_seen_ids(name: str, seen_ids: set[str]) -> None:
+    path = STATE_DIR / f"{name}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         json.dump(
             {
                 "seen_ids": sorted(seen_ids),
+                "last_updated": datetime.now(UTC).isoformat(),
+            },
+            f,
+            indent=2,
+        )
+        f.write("\n")
+
+
+def load_seen_urls(name: str) -> set[str]:
+    path = URL_STATE_DIR / f"{name}.json"
+    if not path.exists():
+        return set()
+    with path.open() as f:
+        return set(json.load(f).get("seen_urls", []))
+
+
+def save_seen_urls(name: str, seen_urls: set[str]) -> None:
+    path = URL_STATE_DIR / f"{name}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as f:
+        json.dump(
+            {
+                "seen_urls": sorted(seen_urls),
                 "last_updated": datetime.now(UTC).isoformat(),
             },
             f,
@@ -164,8 +190,8 @@ def notify_new_listings(
     footer: str,
     term_filter: Callable[[dict], bool] | None = None,
 ) -> None:
-    state_path = STATE_DIR / f"{name}.json"
-    seen_ids, is_first_run = load_seen_ids(state_path)
+    seen_ids, is_first_run = load_seen_ids(name)
+    seen_urls = load_seen_urls(name)
 
     active_visible_ids = {
         listing["id"]
@@ -175,6 +201,11 @@ def notify_new_listings(
         and listing.get("active")
         and (term_filter is None or term_filter(listing))
     }
+    eligible_urls = {
+        listing["url"]
+        for listing in listings
+        if listing.get("id") in active_visible_ids and listing.get("url")
+    }
 
     if is_first_run:
         print(
@@ -182,7 +213,8 @@ def notify_new_listings(
             f"{len(active_visible_ids)} existing active listings. Nothing "
             "will be posted this run."
         )
-        save_seen_ids(state_path, active_visible_ids)
+        save_seen_ids(name, active_visible_ids)
+        save_seen_urls(name, seen_urls | eligible_urls)
         return
 
     new_listings = [
@@ -191,6 +223,7 @@ def notify_new_listings(
         if listing.get("id")
         and listing["id"] in active_visible_ids
         and listing["id"] not in seen_ids
+        and (not listing.get("url") or listing["url"] not in seen_urls)
     ]
 
     print(f"[{name}] {len(new_listings)} new listing(s).")
@@ -234,4 +267,98 @@ def notify_new_listings(
         print(f"[{name}]   posting {len(embeds)} new listing(s)…")
         post_embeds(webhook_url, embeds)
 
-    save_seen_ids(state_path, seen_ids | active_visible_ids)
+    save_seen_ids(name, seen_ids | active_visible_ids)
+    save_seen_urls(name, seen_urls | eligible_urls)
+
+
+def notify_new_vansh_listings(
+    *,
+    name: str,
+    listings: list[dict],
+    category_map: dict[str, str],
+    uncategorized_env_var: str,
+    show_terms: bool,
+    footer: str,
+    term_filter: Callable[[dict], bool] | None = None,
+) -> None:
+    vansh_name = f"vansh_{name}"
+    seen_ids, is_first_run = load_seen_ids(vansh_name)
+    seen_urls = load_seen_urls(name)
+
+    active_visible_ids = {
+        listing["id"]
+        for listing in listings
+        if listing.get("id")
+        and listing.get("is_visible")
+        and listing.get("active")
+        and (term_filter is None or term_filter(listing))
+    }
+    eligible_urls = {
+        listing["url"]
+        for listing in listings
+        if listing.get("id") in active_visible_ids and listing.get("url")
+    }
+
+    if is_first_run:
+        print(
+            f"[{name}] (vansh) no state file found — bootstrapping with "
+            f"{len(active_visible_ids)} existing active listings. Nothing "
+            "will be posted this run."
+        )
+        save_seen_ids(vansh_name, active_visible_ids)
+        save_seen_urls(name, seen_urls | eligible_urls)
+        return
+
+    new_listings = [
+        listing
+        for listing in listings
+        if listing.get("id")
+        and listing["id"] in active_visible_ids
+        and listing["id"] not in seen_ids
+        and (not listing.get("url") or listing["url"] not in seen_urls)
+    ]
+
+    print(f"[{name}] (vansh) {len(new_listings)} new listing(s).")
+
+    by_webhook: dict[str, list[dict]] = {}
+    uncategorized: set[str] = set()
+
+    for listing in new_listings:
+        category = (listing.get("category") or "").strip().lower()
+        env_var = category_map.get(category, uncategorized_env_var)
+        if env_var == uncategorized_env_var:
+            uncategorized.add(listing.get("category") or "(none)")
+
+        webhook_url = os.environ.get(env_var)
+        if not webhook_url:
+            print(
+                f"[{name}] (vansh)   {env_var} is not set, skipping listing "
+                f"{listing['id']}",
+                file=sys.stderr,
+            )
+            continue
+
+        by_webhook.setdefault(webhook_url, []).append(listing)
+
+    if uncategorized:
+        print(
+            f"[{name}] (vansh) routed unmapped categories to uncategorized: "
+            f"{sorted(uncategorized)}"
+        )
+
+    for webhook_url, listings_for_webhook in by_webhook.items():
+        embeds = [
+            build_embed(
+                listing,
+                category_map=category_map,
+                uncategorized_env_var=uncategorized_env_var,
+                show_terms=show_terms,
+                footer=footer,
+            )
+            for listing in listings_for_webhook
+        ]
+        print(f"[{name}] (vansh)   posting {len(embeds)} new listing(s)…")
+        post_embeds(webhook_url, embeds)
+
+    save_seen_ids(vansh_name, seen_ids | active_visible_ids)
+    save_seen_urls(name, seen_urls | eligible_urls)

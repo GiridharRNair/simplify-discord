@@ -45,3 +45,8 @@ def trigger(authorization: str = Header(None)):
         raise HTTPException(status_code=502, detail=response.text)
 
     return {"status": "triggered"}
+
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}

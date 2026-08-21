@@ -6,7 +6,13 @@ A cron job that watches the Simplify Jobs [internship](https://github.com/Simpli
 
 ## How it works
 
-Every hour, a GitHub Actions workflow runs the script. It:
+Every 15 minutes, 8am–6pm on weekdays, [cron-job.org](https://cron-job.org) hits a small API endpoint hosted on Vercel. That endpoint triggers this repo's GitHub Actions workflow, which runs the script. 
+
+
+I decided not to use GitHub Actions because the scheduled jobs dosen't run consistently.
+
+
+The script does the following:
 
 1. Fetches the latest listings from Simplify's public repos ([Summer Internships](https://github.com/SimplifyJobs/Summer2027-Internships) and [New Grad Positions](https://github.com/SimplifyJobs/New-Grad-Positions)).
 2. Compares them against `data/seen_ids/` — a record of listings already posted.

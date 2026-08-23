@@ -71,6 +71,11 @@ def load_seen_ids(name: str) -> tuple[set[str], bool]:
 
 def save_seen_ids(name: str, seen_ids: set[str]) -> None:
     path = STATE_DIR / f"{name}.json"
+    if path.exists():
+        with path.open() as f:
+            existing = set(json.load(f).get("seen_ids", []))
+        if existing == seen_ids:
+            return
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         json.dump(
@@ -94,6 +99,11 @@ def load_seen_urls(name: str) -> set[str]:
 
 def save_seen_urls(name: str, seen_urls: set[str]) -> None:
     path = URL_STATE_DIR / f"{name}.json"
+    if path.exists():
+        with path.open() as f:
+            existing = set(json.load(f).get("seen_urls", []))
+        if existing == seen_urls:
+            return
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         json.dump(

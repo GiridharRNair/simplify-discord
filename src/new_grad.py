@@ -10,7 +10,7 @@ LISTINGS_URL = (
     "refs/heads/dev/.github/scripts/listings.json"
 )
 
-CATEGORY_MAP = common.build_category_map("FULLTIME_", "_WEBHOOK_URL")
+CATEGORY_ENV_MAP = common.build_category_env_map("FULLTIME_", "_WEBHOOK_URL")
 UNCATEGORIZED_ENV_VAR = "FULLTIME_UNCATEGORIZED_WEBHOOK_URL"
 
 
@@ -26,7 +26,7 @@ def run() -> bool:
     common.notify_new_listings(
         bucket="fulltime",
         listings=listings,
-        category_map=CATEGORY_MAP,
+        category_map=CATEGORY_ENV_MAP,
         uncategorized_env_var=UNCATEGORIZED_ENV_VAR,
         show_terms=False,
         footer="Simplify · New Grad",

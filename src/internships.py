@@ -10,10 +10,10 @@ LISTINGS_URL = (
     "refs/heads/dev/.github/scripts/listings.json"
 )
 
-SUMMER_CATEGORY_MAP = common.build_category_map("", "_INTERNSHIPS_WEBHOOK_URL")
+SUMMER_CATEGORY_ENV_MAP = common.build_category_env_map("", "_INTERNSHIPS_WEBHOOK_URL")
 SUMMER_UNCATEGORIZED_ENV_VAR = "UNCATEGORIZED_INTERNSHIPS_WEBHOOK_URL"
 
-OFFSEASON_CATEGORY_MAP = common.build_category_map(
+OFFSEASON_CATEGORY_ENV_MAP = common.build_category_env_map(
     "OFFSEASON_", "_INTERNSHIPS_WEBHOOK_URL"
 )
 OFFSEASON_UNCATEGORIZED_ENV_VAR = "OFFSEASON_UNCATEGORIZED_INTERNSHIPS_WEBHOOK_URL"
@@ -37,7 +37,7 @@ def run() -> bool:
     common.notify_new_listings(
         bucket="summer",
         listings=listings,
-        category_map=SUMMER_CATEGORY_MAP,
+        category_map=SUMMER_CATEGORY_ENV_MAP,
         uncategorized_env_var=SUMMER_UNCATEGORIZED_ENV_VAR,
         term_filter=is_summer,
         show_terms=True,
@@ -46,7 +46,7 @@ def run() -> bool:
     common.notify_new_listings(
         bucket="offseason",
         listings=listings,
-        category_map=OFFSEASON_CATEGORY_MAP,
+        category_map=OFFSEASON_CATEGORY_ENV_MAP,
         uncategorized_env_var=OFFSEASON_UNCATEGORIZED_ENV_VAR,
         term_filter=lambda listing: not is_summer(listing),
         show_terms=True,

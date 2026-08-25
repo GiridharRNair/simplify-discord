@@ -12,45 +12,30 @@ STATE_DIR = Path(__file__).resolve().parent.parent / "data" / "seen_ids"
 
 DISCORD_EMBEDS_PER_MESSAGE = 10  # Discord's hard cap per webhook execute call
 
-CATEGORY_ALIASES: dict[str, tuple[str, ...]] = {
-    "software": ("software", "software engineering"),
-    "product": ("product", "product management"),
-    "data_science": ("ai/ml/data", "data science, ai & machine learning"),
-    "quant": ("quant", "quantitative finance"),
-    "hardware": ("hardware", "hardware engineering"),
+CATEGORY_ENV_LABEL: dict[str, str] = {
+    "software": "SOFTWARE",
+    "product": "PRODUCT_MANAGEMENT",
+    "ai/ml/data": "DATA_SCIENCE_ML_AI",
+    "quant": "QUANTITATIVE_FINANCE",
+    "hardware": "HARDWARE",
 }
 
-ALIAS_TO_SLUG: dict[str, str] = {
-    alias: slug for slug, aliases in CATEGORY_ALIASES.items() for alias in aliases
-}
-
-# Discord embed accent color per canonical category slug.
-SLUG_COLOR: dict[str, int] = {
+CATEGORY_COLOR: dict[str, int] = {
     "software": 0x5865F2,
     "product": 0x57F287,
-    "data_science": 0xEB459E,
+    "ai/ml/data": 0xEB459E,
     "quant": 0xFEE75C,
     "hardware": 0xED4245,
 }
 UNCATEGORIZED_COLOR = 0x99AAB5
 
-# Env var label per slug, used to build each category's webhook env var name.
-SLUG_ENV_LABEL: dict[str, str] = {
-    "software": "SOFTWARE",
-    "product": "PRODUCT_MANAGEMENT",
-    "data_science": "DATA_SCIENCE_ML_AI",
-    "quant": "QUANTITATIVE_FINANCE",
-    "hardware": "HARDWARE",
-}
 
-
-def build_category_map(prefix: str, suffix: str) -> dict[str, str]:
-    mapping = {}
-    for slug, aliases in CATEGORY_ALIASES.items():
-        env_var = f"{prefix}{SLUG_ENV_LABEL[slug]}{suffix}"
-        for alias in aliases:
-            mapping[alias] = env_var
-    return mapping
+def build_category_env_map(prefix: str, suffix: str) -> dict[str, str]:
+    category_env_map = {}
+    for category, env_label in CATEGORY_ENV_LABEL.items():
+        env_var = f"{prefix}{env_label}{suffix}"
+        category_env_map[category] = env_var
+    return category_env_map
 
 
 def fetch_json(url: str) -> list[dict]:
@@ -106,8 +91,7 @@ def build_embed(
     category = (listing.get("category") or "").strip().lower()
     env_var = category_map.get(category, uncategorized_env_var)
     is_uncategorized = env_var == uncategorized_env_var
-    slug = ALIAS_TO_SLUG.get(category)
-    color = UNCATEGORIZED_COLOR if slug is None else SLUG_COLOR[slug]
+    color = CATEGORY_COLOR.get(category, UNCATEGORIZED_COLOR)
 
     fields = [{"name": "Location(s)", "value": locations[:1024], "inline": True}]
     if show_terms:

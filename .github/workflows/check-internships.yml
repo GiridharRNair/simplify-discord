@@ -54,6 +54,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/seen_ids/ data/seen_urls/
+          git add data/seen_ids/
           git diff --staged --quiet || git commit -m "chore: update seen listing ids [skip ci]"
           git push

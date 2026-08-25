@@ -37,7 +37,7 @@ OFFSEASON_UNCATEGORIZED_ENV_VAR = "OFFSEASON_UNCATEGORIZED_INTERNSHIPS_WEBHOOK_U
 
 def is_summer(listing: dict) -> bool:
     for term in listing.get("terms", []):
-        if term.get("season") == "summer":
+        if "summer" in term.lower():
             return True
     return False
 
@@ -68,14 +68,14 @@ def _process_season(
             "will be posted this run."
         )
         common.save_seen_ids(season, active_ids)
-        return False
+        return True
 
     new_listings = [
         listing for listing in active_listings if listing["id"] not in seen_ids
     ]
     print(f"{log_label} {len(new_listings)} new listing(s).")
     if not new_listings:
-        return False
+        return True
 
     posted_ids = set()
     for listing in new_listings:

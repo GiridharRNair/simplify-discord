@@ -7,15 +7,13 @@ try:
 except ImportError:
     pass  # dotenv is a local-dev convenience only; not required in CI
 
-from src import internships, new_grad, vansh_internships, vansh_new_grad
+from src import internships, new_grad
 
 
 def main() -> int:
     results = [
         internships.run(),
         new_grad.run(),
-        vansh_internships.run(),
-        vansh_new_grad.run(),
     ]
     return 0 if all(results) else 1
 

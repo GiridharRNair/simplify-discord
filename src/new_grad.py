@@ -24,7 +24,7 @@ def run() -> bool:
     print(f"[new_grad] fetched {len(listings)} listings")
 
     common.notify_new_listings(
-        name="fulltime",
+        bucket="fulltime",
         listings=listings,
         category_map=CATEGORY_MAP,
         uncategorized_env_var=UNCATEGORIZED_ENV_VAR,

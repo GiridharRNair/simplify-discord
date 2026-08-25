@@ -10,18 +10,28 @@ STATE_DIR = Path(__file__).resolve().parent.parent / "data" / "seen_ids"
 
 CATEGORY_ENV_LABEL: dict[str, str] = {
     "software": "SOFTWARE",
+    "software engineering": "SOFTWARE",
     "product": "PRODUCT_MANAGEMENT",
+    "product management": "PRODUCT_MANAGEMENT",
     "ai/ml/data": "DATA_SCIENCE_ML_AI",
+    "data science, ai & machine learning": "DATA_SCIENCE_ML_AI",
     "quant": "QUANTITATIVE_FINANCE",
+    "quantitative finance": "QUANTITATIVE_FINANCE",
     "hardware": "HARDWARE",
+    "hardware engineering": "HARDWARE",
 }
 
 CATEGORY_COLOR: dict[str, int] = {
     "software": 0x5865F2,
+    "software engineering": 0x5865F2,
     "product": 0x57F287,
+    "product management": 0x57F287,
     "ai/ml/data": 0xEB459E,
+    "data science, ai & machine learning": 0xEB459E,
     "quant": 0xFEE75C,
+    "quantitative finance": 0xFEE75C,
     "hardware": 0xED4245,
+    "hardware engineering": 0xED4245,
 }
 UNCATEGORIZED_COLOR = 0x99AAB5
 
